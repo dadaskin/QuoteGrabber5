@@ -31,6 +31,9 @@
 //                      Yahoo Query Interface (YQI) to get the information in JSON format and then change
 //                      the logic in the program to parse JSON and update the spreadsheet.
 //
+// 09 May 2017  v5.1.0: Change how last symbol row is found.  Was: row of last symbol on Sheet1. Didn't
+//                      work if last n rows was different blocks of same symbol.
+//
 
 using System;
 using System.Collections.Generic;
@@ -232,7 +235,7 @@ namespace QuoteGrabber5
                     ReadSymbolsFromSheet((Excel._Worksheet)obj);
                 }
 
-                GetLastSymbolRowOnSheet1();
+            //    GetLastSymbolRowOnSheet1();
             }
             catch (Exception err)
             {
@@ -240,20 +243,20 @@ namespace QuoteGrabber5
             }
         }
 
-        private void GetLastSymbolRowOnSheet1()
-        {
-            int prevRow = 0;
-            foreach (var issue in _mInvestments)
-            {
-                if (issue.SheetName == "Sheet2")
-                {
-                    _mLastSymbolRow = prevRow;
-                    break;
-                }
-                prevRow = Int32.Parse(issue.RowStr);
-            }
+        //private void GetLastSymbolRowOnSheet1()
+        //{
+        //    int prevRow = 0;
+        //    foreach (var issue in _mInvestments)
+        //    {
+        //        if (issue.SheetName == "Sheet2")
+        //        {
+        //            _mLastSymbolRow = prevRow;
+        //            break;
+        //        }
+        //        prevRow = Int32.Parse(issue.RowStr);
+        //    }
 
-        }
+        //}
 
 
         // TBD: Simplify  don't need parseAs
@@ -286,6 +289,10 @@ namespace QuoteGrabber5
 
                     if (!alreadyInList)
                         _mInvestments.Add(issue);
+                }
+                else if ((symbol != null) && (symbol == MSymbolListTerminationString) && sheet.Name.Contains("Sheet1"))
+                {
+                    _mLastSymbolRow = row - 1;
                 }
                 row++;
             }
